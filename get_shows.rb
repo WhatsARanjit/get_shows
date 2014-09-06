@@ -13,6 +13,7 @@ end
 
 # Get current time for delay comparison
 time = Time.now
+done = []
 
 config_params['shows'].each do |show,hash|
   showname = show.to_s
@@ -24,13 +25,19 @@ config_params['shows'].each do |show,hash|
   open(url) do |rss|
     feed = RSS::Parser.parse(rss)
     feed.items.each do |item|
-      pubdate = Date.parse "#{item.pubDate} (#{time.getlocal.zone})"
-      now     = Date.parse time.strftime('%a, %d %b %Y %X +0000 (%Z)')
-      age     = now - pubdate
-      if age > delay 
-        title = item.title.gsub(/\./, ' ').gsub(/(#{showname}[a-z0-9]+\b).*/i, '\1')
-        puts title
-      end
+      # Make a user-friendly repeatable version of the title
+      title = item.title.gsub(/\./, ' ').gsub(/(#{showname}[a-z0-9]+\b).*/i, '\1')
+      check = %x{ /bin/find #{dest_dir} -iname "*#{title}*" | /bin/grep -q "#{title}" }
+      # Don't do the following if the title is already in the done array
+      ( 
+        pubdate = Date.parse "#{item.pubDate} (#{time.getlocal.zone})"
+        now     = Date.parse time.strftime('%a, %d %b %Y %X +0000 (%Z)')
+        age     = now - pubdate
+        if age > delay 
+          done << title
+          puts "Downloading #{item.title}" 
+        end
+      ) unless done.include? title
     end
   end
 end
