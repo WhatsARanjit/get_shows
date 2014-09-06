@@ -22,6 +22,7 @@ config_params['shows'].each do |show,hash|
   url      = baseurl + '/' + URI::encode(showname) + '/' + options
   dest_dir = hash['dest_dir'] ? hash['dest_dir'] : config_params['dest_dir']
   delay    = hash['delay'] ? hash['delay'] : config_params['delay']
+  cmd      = hash['torrent_cmd'] ? hash['torrent_cmd'] : config_params['torrent_cmd']
   open(url) do |rss|
     feed = RSS::Parser.parse(rss)
     feed.items.each do |item|
@@ -29,16 +30,19 @@ config_params['shows'].each do |show,hash|
       title = item.title.gsub(/\./, ' ').gsub(/(#{showname}[a-z0-9]+\b).*/i, '\1')
       check = %x{ /bin/find #{dest_dir} -iname "*#{title}*" | /bin/grep -q "#{title}" }
       # Don't do the following if the title is already in the done array
-      ( 
+      if $?.exitstatus.to_i > 0
         pubdate = Date.parse "#{item.pubDate} (#{time.getlocal.zone})"
         now     = Date.parse time.strftime('%a, %d %b %Y %X +0000 (%Z)')
         age     = now - pubdate
         if age > delay 
-          done << title
-          puts "Downloading #{item.title}" 
+          magnet = item.enclosure.to_s.match(/url="(.*)"/) [1]
+          doit = %x{ #{cmd} #{magnet} }
+          if $?.exitstatus.to_i < 1
+            puts "Downloading \"#{item.title}\" from #{magnet}"
+            done << title
+          end
         end
-      ) unless done.include? title
+      end unless done.include? title 
     end
   end
 end
-
