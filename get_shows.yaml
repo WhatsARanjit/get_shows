@@ -1,0 +1,13 @@
+---
+# Global options
+torrent_url: 'http://kickass.to/usearch'
+torrent_options: '?rss=1&field=seeders&sorder=desc'
+torrent_cmd: '/usr/bin/transmission-remote -N /var/lib/transmission/.netrc -a'
+delay: 0
+dest_dir: /path/to/media/folder
+# Shows hash
+shows:
+  'Search String for Show S01':
+    # Can override any global options by the show
+    delay: 14
+    dest_dir: '/path/to/media/folder/test_show'
