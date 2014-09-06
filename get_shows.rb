@@ -5,10 +5,10 @@ require 'open-uri'
 
 # Load configuration file
 begin
-  config_params = YAML.load_file('/etc/get_shows.yaml')
-  rescue 
-    $stderr.print "\033[31mCould not find file /etc/get_shows.yaml\033[0m\n"
-  raise
+  config_params = YAML.load_file('/tetc/get_shows.yaml')
+rescue 
+  $stderr.print "\033[31mError: Could not find file /etc/get_shows.yaml\033[0m\n"
+  exit 1
 end
 
 # Get current time for delay comparison
@@ -23,6 +23,14 @@ config_params['shows'].each do |show,hash|
   dest_dir = hash['dest_dir'] ? hash['dest_dir'] : config_params['dest_dir']
   delay    = hash['delay'] ? hash['delay'] : config_params['delay']
   cmd      = hash['torrent_cmd'] ? hash['torrent_cmd'] : config_params['torrent_cmd']
+  begin
+    rss_check = open(url)
+  rescue Exception
+    puts "Notice: No RSS Feed for show \"#{show}\"\n"
+    good = false
+  else
+    good = true 
+  end
   open(url) do |rss|
     feed = RSS::Parser.parse(rss)
     feed.items.each do |item|
@@ -44,5 +52,5 @@ config_params['shows'].each do |show,hash|
         end
       end unless done.include? title 
     end
-  end
+  end if good
 end
