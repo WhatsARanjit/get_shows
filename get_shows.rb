@@ -5,7 +5,7 @@ require 'open-uri'
 
 # Load configuration file
 begin
-  config_params = YAML.load_file('/tetc/get_shows.yaml')
+  config_params = YAML.load_file('/etc/get_shows.yaml')
 rescue 
   $stderr.print "\033[31mError: Could not find file /etc/get_shows.yaml\033[0m\n"
   exit 1
