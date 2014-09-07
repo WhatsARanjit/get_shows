@@ -17,12 +17,16 @@ done = []
 
 config_params['shows'].each do |show,hash|
   showname = show.to_s
-  baseurl  = hash['torrent_url'] ? hash['torrent_url'] : config_params['torrent_url']
+  uri      = hash['torrent_uri'] ? hash['torrent_uri'] : config_params['torrent_uri']
   options  = hash['torrent_options'] ? hash['torrent_options'] : config_params['torrent_options']
-  url      = baseurl + '/' + URI::encode(showname) + '/' + options
+  baseurl  = hash['torrent_baseurl'] ? hash['torrent_baseurl'] : config_params['torrent_baseurl']
+  url      = hash['torrent_url'] ? hash['torrent_url'] : config_params['torrent_url']
+  url      = url.gsub(/%uri/, uri).gsub(/%showname/, URI::encode(showname)).gsub(/%options/, options)
+  #url     = baseuri + '/' + URI::encode(showname) + '/' + options
   dest_dir = hash['dest_dir'] ? hash['dest_dir'] : config_params['dest_dir']
   delay    = hash['delay'] ? hash['delay'] : config_params['delay']
   cmd      = hash['torrent_cmd'] ? hash['torrent_cmd'] : config_params['torrent_cmd']
+  puts url
   begin
     rss_check = open(url)
   rescue Exception
