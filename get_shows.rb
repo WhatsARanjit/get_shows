@@ -19,7 +19,6 @@ config_params['shows'].each do |show,hash|
   showname = show.to_s
   uri      = hash['torrent_uri'] ? hash['torrent_uri'] : config_params['torrent_uri']
   options  = hash['torrent_options'] ? hash['torrent_options'] : config_params['torrent_options']
-  baseurl  = hash['torrent_baseurl'] ? hash['torrent_baseurl'] : config_params['torrent_baseurl']
   url      = hash['torrent_url'] ? hash['torrent_url'] : config_params['torrent_url']
   url      = url.gsub(/%uri/, uri).gsub(/%showname/, URI::encode(showname)).gsub(/%options/, options)
   dest_dir = hash['dest_dir'] ? hash['dest_dir'] : config_params['dest_dir']
