@@ -9,8 +9,8 @@ A sample is included in the repository.  Most of the
 configurations can be set globally and then overriden
 by the show-level if necessary.
 
-`torrent_url`:<br />
-THe torrent_url will be used to construct the URL
+`torrent_uri`:<br />
+THe torrent_uri will be used to construct the URL
 where get_shows finds an RSS feed, containing
 information to search for available torrents.
 
@@ -18,6 +18,12 @@ information to search for available torrents.
 This value will be URI parameters added to your 
 RSS search URL.  These may include sorting parameters,
 user filters, or other indexes.
+
+`torrent_url`:<br />
+The torrent_url is a dynamic URL that is generated from
+the variables %uri (torrent_url), %showname (name of
+show in hash), and %options (torrent_options). For
+example, you can set it to '%uri/%showname/%options'.
 
 `torrent_cmd`:<br />
 Get_shows is torrent-agnostic.  That is, indicate the
