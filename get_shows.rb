@@ -3,6 +3,11 @@ require 'yaml'
 require 'rss'
 require 'open-uri'
 
+# Get current time for delay comparison
+time = Time.now
+done = []
+puts "==>Start: #{time}"
+
 # Load configuration file
 begin
   config_params = YAML.load_file('/etc/get_shows.yaml')
@@ -10,10 +15,6 @@ rescue
   $stderr.print "\033[31mError: Could not find file /etc/get_shows.yaml\033[0m\n"
   exit 1
 end
-
-# Get current time for delay comparison
-time = Time.now
-done = []
 
 config_params['shows'].each do |show,hash|
   showname = show.to_s
@@ -55,3 +56,5 @@ config_params['shows'].each do |show,hash|
     end
   end if good
 end
+
+puts "==>Start: #{Time.now}"
