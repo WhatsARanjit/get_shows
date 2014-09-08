@@ -25,6 +25,7 @@ config_params['shows'].each do |show,hash|
   dest_dir = hash['dest_dir'] ? hash['dest_dir'] : config_params['dest_dir']
   delay    = hash['delay'] ? hash['delay'] : config_params['delay']
   cmd      = hash['torrent_cmd'] ? hash['torrent_cmd'] : config_params['torrent_cmd']
+  # Rescue a failure from a back URL or even a 404 if not torrent is available
   begin
     rss_check = open(url)
   rescue Exception
@@ -33,21 +34,26 @@ config_params['shows'].each do |show,hash|
   else
     good = true 
   end
+  # Start parsing the RSS if a good URL
   open(url) do |rss|
     feed = RSS::Parser.parse(rss)
     feed.items.each do |item|
-      # Make a user-friendly repeatable version of the title
+      # Make a user-friendly,` repeatable version of the title
       title = item.title.gsub(/\./, ' ').gsub(/(#{showname}[a-z0-9]+\b).*/i, '\1')
       check = %x{ /bin/find #{dest_dir} -iname "*#{title}*" | /bin/grep -q "#{title}" }
       # Don't do the following if the title is already in the done array
       if $?.exitstatus.to_i > 0
+        # Calculate the age of the torrent relative to the delay
         pubdate = Date.parse "#{item.pubDate} (#{time.getlocal.zone})"
         now     = Date.parse time.strftime('%a, %d %b %Y %X +0000 (%Z)')
         age     = now - pubdate
+        # If the torrent is old enough
         if age > delay 
-          magnet = item.enclosure.to_s.match(/url="(.*)"/) [1]
-          doit = %x{ #{cmd} #{magnet} }
+          # Extract the magnet URL
+          magnet = item.enclosure.to_s.match(/url = "(.*)"/) [1]
+          doit   = %x{ #{cmd} #{magnet} }
           if $?.exitstatus.to_i < 1
+            # If torrent add works, add to done array and output info
             puts "Downloading \"#{item.title}\" from #{magnet}"
             done << title
           end
