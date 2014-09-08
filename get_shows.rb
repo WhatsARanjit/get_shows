@@ -57,4 +57,4 @@ config_params['shows'].each do |show,hash|
   end if good
 end
 
-puts "==>Start: #{Time.now}"
+puts "==>End: #{Time.now}"
