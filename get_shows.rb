@@ -2,8 +2,21 @@
 require 'yaml'
 require 'rss'
 require 'open-uri'
+require 'optparse'
 
-debug = true
+options = {:debug => false}
+parser = OptionParser.new do|opts|
+  opts.on('-d', '--debug', 'Turns debug on') do |value|
+    options[:debug] = true
+  end
+  opts.on('-h', '--help', 'Displays help') do |help|
+    puts opts
+    exit
+  end
+end
+parser.parse!
+
+debug = options[:debug]
 
 # Get current time for delay comparison
 time = Time.now
@@ -48,7 +61,7 @@ config_params['shows'].each do |show,hash|
       # Make a user-friendly,` repeatable version of the title
       title = item.title.gsub(/\./, ' ').gsub(/(#{showname}[a-z0-9]+\b).*/i, '\1')
       check = %x{ /bin/find #{dest_dir} -iname "*#{title}*" | /bin/grep -q "#{title}" }
-      puts title
+      puts title if debug
 
       # Don't do the following if the title is already in the done array
       if $?.exitstatus.to_i > 0
@@ -60,9 +73,8 @@ config_params['shows'].each do |show,hash|
         age     = now - pubdate
 
         # If the torrent is old enough
-        #puts "#{age.to_s} - #{delay.to_s}" if debug
         if age > delay 
-          puts "Passes age check [#{age}]: #{now} - #{pubdate}"
+          puts "Passes age check [#{age}]: #{now} - #{pubdate}" if debug
 
           # Extract the magnet URL
           begin
