@@ -3,6 +3,8 @@ require 'yaml'
 require 'rss'
 require 'open-uri'
 
+debug = true
+
 # Get current time for delay comparison
 time = Time.now
 done = []
@@ -18,13 +20,16 @@ end
 
 config_params['shows'].each do |show,hash|
   showname = show.to_s
+  puts showname if debug
   uri      = hash['torrent_uri'] ? hash['torrent_uri'] : config_params['torrent_uri']
   options  = hash['torrent_options'] ? hash['torrent_options'] : config_params['torrent_options']
   url      = hash['torrent_url'] ? hash['torrent_url'] : config_params['torrent_url']
   url      = url.gsub(/%uri/, uri).gsub(/%showname/, URI::encode(showname)).gsub(/%options/, options)
+  puts url if debug
   dest_dir = hash['dest_dir'] ? hash['dest_dir'] : config_params['dest_dir']
   delay    = hash['delay'] ? hash['delay'] : config_params['delay']
   cmd      = hash['torrent_cmd'] ? hash['torrent_cmd'] : config_params['torrent_cmd']
+
   # Rescue a failure from a back URL or even a 404 if not torrent is available
   begin
     rss_check = open(url)
@@ -34,33 +39,50 @@ config_params['shows'].each do |show,hash|
   else
     good = true 
   end
+
   # Start parsing the RSS if a good URL
   open(url) do |rss|
     feed = RSS::Parser.parse(rss)
     feed.items.each do |item|
+
       # Make a user-friendly,` repeatable version of the title
       title = item.title.gsub(/\./, ' ').gsub(/(#{showname}[a-z0-9]+\b).*/i, '\1')
       check = %x{ /bin/find #{dest_dir} -iname "*#{title}*" | /bin/grep -q "#{title}" }
+      puts title
+
       # Don't do the following if the title is already in the done array
       if $?.exitstatus.to_i > 0
+        puts "Passes on disk check [#{$?.exitstatus.to_i}]: /bin/find #{dest_dir} -iname \"*#{title}*\" | /bin/grep -q \"#{title}\"" if debug
+
         # Calculate the age of the torrent relative to the delay
         pubdate = Date.parse "#{item.pubDate} (#{time.getlocal.zone})"
         now     = Date.parse time.strftime('%a, %d %b %Y %X +0000 (%Z)')
         age     = now - pubdate
+
         # If the torrent is old enough
+        #puts "#{age.to_s} - #{delay.to_s}" if debug
         if age > delay 
+          puts "Passes age check [#{age}]: #{now} - #{pubdate}"
+
           # Extract the magnet URL
-          magnet = item.enclosure.to_s.match(/url = "(.*)"/) [1]
-          doit   = %x{ #{cmd} #{magnet} }
-          if $?.exitstatus.to_i < 1
-            # If torrent add works, add to done array and output info
-            puts "Downloading \"#{item.title}\" from #{magnet}"
-            done << title
-          end
-        end
-      end unless done.include? title 
-    end
-  end if good
-end
+          begin
+            magnet = item.enclosure.to_s.match(/url="(.*)"/) [1]
+          rescue
+            puts "Warning: Could not find URL in #{item.enclosure.to_s}"
+          else
+            doit   = %x{ #{cmd} #{magnet} }
+            if $?.exitstatus.to_i < 1
+
+              # If torrent add works, add to done array and output info
+              puts "Downloading \"#{item.title}\" from #{magnet}"
+              done << title
+
+            end # END: checking if torrent command succeeded
+          end # END: Rescue to see if we could get a URL
+        end # END: Age test
+      end unless done.include? title # END: if file does not already exist
+    end # END: Iterating through items
+  end if good # END: open(url) vblock
+end # END: Shows hash
 
 puts "==>End: #{Time.now}"
