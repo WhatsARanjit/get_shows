@@ -3,6 +3,14 @@
 This is a script designed to manage a list of shows,
 and grab them off your favorite torrent site.
 
+# Command line
+```
+Usage: get_shows [options]
+    -d, --debug                      Turns debug on
+    -n, --no-download                Reports new links without beginning download
+    -h, --help                       Displays help
+```
+
 # Configuration
 The configuration is managed in /etc/get_shows.yaml.
 A sample is included in the repository.  Most of the
