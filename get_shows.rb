@@ -4,10 +4,13 @@ require 'rss'
 require 'open-uri'
 require 'optparse'
 
-options = {:debug => false}
+options = {:debug => false, :nodown => false}
 parser = OptionParser.new do|opts|
   opts.on('-d', '--debug', 'Turns debug on') do |value|
     options[:debug] = true
+  end
+  opts.on('-n', '--no-download', 'Reports new lnks without beginning download') do |value|
+    options[:nodown] = true
   end
   opts.on('-h', '--help', 'Displays help') do |help|
     puts opts
@@ -16,7 +19,8 @@ parser = OptionParser.new do|opts|
 end
 parser.parse!
 
-debug = options[:debug]
+debug  = options[:debug]
+nodown = options[:nodown]
 
 # Get current time for delay comparison
 time = Time.now
@@ -82,14 +86,15 @@ config_params['shows'].each do |show,hash|
           rescue
             puts "Warning: Could not find URL in #{item.enclosure.to_s}"
           else
-            doit   = %x{ #{cmd} #{magnet} }
+            puts "\"#{item.title}\" available from #{magnet}" if nodown
+            doit = %x{ #{cmd} #{magnet} } unless nodown
             if $?.exitstatus.to_i < 1
 
               # If torrent add works, add to done array and output info
               puts "Downloading \"#{item.title}\" from #{magnet}"
               done << title
 
-            end # END: checking if torrent command succeeded
+            end unless nodown # END: checking if torrent command succeeded
           end # END: Rescue to see if we could get a URL
         end # END: Age test
       end unless done.include? title # END: if file does not already exist
