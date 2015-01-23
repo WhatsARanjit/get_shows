@@ -95,6 +95,10 @@ config_params['shows'].each do |show,hash|
               done << title
 
             end unless nodown # END: checking if torrent command succeeded
+
+            # Mock add to array if not actually downloaded
+            done << title if nodown
+
           end # END: Rescue to see if we could get a URL
         end # END: Age test
       end unless done.include? title # END: if file does not already exist
