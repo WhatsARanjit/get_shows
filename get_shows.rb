@@ -9,7 +9,7 @@ parser = OptionParser.new do|opts|
   opts.on('-d', '--debug', 'Turns debug on') do |value|
     options[:debug] = true
   end
-  opts.on('-n', '--no-download', 'Reports new lnks without beginning download') do |value|
+  opts.on('-n', '--no-download', 'Reports new links without beginning download') do |value|
     options[:nodown] = true
   end
   opts.on('-h', '--help', 'Displays help') do |help|
@@ -38,15 +38,15 @@ end
 config_params['shows'].each do |show,hash|
   showname = show.to_s
   puts showname if debug
-  uri      = hash['torrent_uri'] ? hash['torrent_uri'] : config_params['torrent_uri']
+  uri      = hash['torrent_uri'] ? hash['torrent_uri']         : config_params['torrent_uri']
   options  = hash['torrent_options'] ? hash['torrent_options'] : config_params['torrent_options']
-  url      = hash['torrent_url'] ? hash['torrent_url'] : config_params['torrent_url']
+  url      = hash['torrent_url'] ? hash['torrent_url']         : config_params['torrent_url']
   url      = url.gsub(/%uri/, uri).gsub(/%showname/, URI::encode(showname)).gsub(/%options/, options)
   puts url if debug
-  dest_dir = hash['dest_dir'] ? hash['dest_dir'] : config_params['dest_dir']
-  delay    = hash['delay'] ? hash['delay'] : config_params['delay']
-  cmd      = hash['torrent_cmd'] ? hash['torrent_cmd'] : config_params['torrent_cmd']
-
+  dest_dir = hash['dest_dir'] ? hash['dest_dir']               : config_params['dest_dir']
+  delay    = hash['delay'] ? hash['delay']                     : config_params['delay']
+  max_age  = hash['max_age'] ? hash['max_age']                 : config_params['max_age']
+  cmd      = hash['torrent_cmd'] ? hash['torrent_cmd']         : config_params['torrent_cmd']
   # Rescue a failure from a back URL or even a 404 if not torrent is available
   begin
     rss_check = open(url)
@@ -77,7 +77,7 @@ config_params['shows'].each do |show,hash|
         age     = now - pubdate
 
         # If the torrent is old enough
-        if age > delay 
+        if (age > delay) and (age < max_age)
           puts "Passes age check [#{age}]: #{now} - #{pubdate}" if debug
 
           # Extract the magnet URL

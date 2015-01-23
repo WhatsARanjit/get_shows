@@ -4,6 +4,7 @@ torrent_url: 'http://kickass.to/usearch'
 torrent_options: '?rss=1&field=seeders&sorder=desc'
 torrent_cmd: '/usr/bin/transmission-remote -N /var/lib/transmission/.netrc -a'
 delay: 0
+max_age: 356
 dest_dir: /path/to/media/folder
 # Shows hash
 shows:

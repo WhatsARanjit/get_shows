@@ -46,6 +46,12 @@ a torrent.  For example, if you'd like to wait 2 weeks
 before downloading any new torrents (for a reason of
 your choosing), set this value to 14.
 
+`max_age`:<br />
+Max_age is a number of days before considering a 
+torrent too old for download.  For example, if you'd
+like to avoid downloading torrents older than 2 weeks,
+set this value to 14.
+
 `dest_dir`:<br />
 Get_shows will search for a filename based on the
 torrents available to see if you've already downloaded
