@@ -2,6 +2,7 @@
 # Global options
 torrent_url: 'http://kickass.to/usearch'
 torrent_options: '?rss=1&field=seeders&sorder=desc'
+torrent_url: '%uri/%showname/%options'
 torrent_cmd: '/usr/bin/transmission-remote -N /var/lib/transmission/.netrc -a'
 delay: 0
 max_age: 356
