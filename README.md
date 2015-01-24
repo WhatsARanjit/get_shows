@@ -1,7 +1,9 @@
 # get_shows.rb
 
 This is a script designed to manage a list of shows,
-and grab them off your favorite torrent site.
+and grab them off your favorite torrent site. The
+scripts expects a standard RSS format for torrent
+listings.  See `sample.xml` as an example.
 
 # Command line
 ```
@@ -13,9 +15,10 @@ Usage: get_shows [options]
 
 # Configuration
 The configuration is managed in /etc/get_shows.yaml.
-A sample is included in the repository.  Most of the
-configurations can be set globally and then overriden
-by the show-level if necessary.
+A sample is included in the repository at
+`sample_get_shows.yaml`.  Most of the configurations
+can be set globally and then overriden by the
+show-level if necessary.
 
 `torrent_uri`:<br />
 THe torrent_uri will be used to construct the URL
