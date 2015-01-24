@@ -33,6 +33,11 @@ the variables %uri (torrent_url), %showname (name of
 show in hash), and %options (torrent_options). For
 example, you can set it to '%uri/%showname/%options'.
 
+`season`:<br />
+The season is a 2 digit number that will be used in the
+search URL of specified.  The format is for the search
+URL is '%uri/%showname S##/%options'.
+
 `torrent_cmd`:<br />
 Get_shows is torrent-agnostic.  That is, indicate the
 command line tool to use to add a torrent to your
