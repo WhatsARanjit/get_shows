@@ -63,12 +63,13 @@ config_params['shows'].each do |show,hash|
     feed.items.each do |item|
 
       # Make a user-friendly,` repeatable version of the title
-      title = item.title.gsub(/\./, ' ').gsub(/(#{showname}[a-z0-9]+\b).*/i, '\1')
+      #title = item.title.gsub(/\./, ' ').gsub(/(#{showname}[a-z0-9]+\b).*/i, '\1')
+      title = item.title.gsub(/\./, ' ').gsub(/(#{showname}\s?(?:S\d+)?(?:E\d+)?).*/i, '\1')
       check = %x{ /bin/find #{dest_dir} -iname "*#{title}*" | /bin/grep -q "#{title}" }
-      puts title if debug
 
       # Don't do the following if the title is already in the done array
       if $?.exitstatus.to_i > 0
+        puts title if debug
         puts "Passes on disk check [#{$?.exitstatus.to_i}]: /bin/find #{dest_dir} -iname \"*#{title}*\" | /bin/grep -q \"#{title}\"" if debug
 
         # Calculate the age of the torrent relative to the delay
@@ -96,12 +97,14 @@ config_params['shows'].each do |show,hash|
 
             end unless nodown # END: checking if torrent command succeeded
 
-            # Mock add to array if not actually downloaded
-            done << title if nodown
-
           end # END: Rescue to see if we could get a URL
         end # END: Age test
+        puts "Fails age check [#{age}]: #{now} - #{pubdate}" if debug
       end unless done.include? title # END: if file does not already exist
+
+      # Mock add to array if not actually downloaded
+      done << title if nodown
+
     end # END: Iterating through items
   end if good # END: open(url) vblock
 end # END: Shows hash
