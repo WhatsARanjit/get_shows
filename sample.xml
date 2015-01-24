@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:torrent="http://xmlns.ezrss.it/0.1/">
+<channel>
+    <title>Torrents by keyword "Lost Girl S05 category:tv" - KickassTorrents</title>
+    <link>http://kickass.so/</link>
+    <description>Torrents by keyword "Lost Girl S05 category:tv"</description>
+    <item>
+        <title>Lost Girl S05E07 HDTV x264-2HD [eztv]</title>
+
+        <category>TV</category>
+      <author>http://kickass.so/user/EZTV/</author>        <link>http://kickass.so/lost-girl-s05e07-hdtv-x264-2hd-eztv-t10097266.html</link>
+        <guid>http://kickass.so/lost-girl-s05e07-hdtv-x264-2hd-eztv-t10097266.html</guid>
+        <pubDate>Mon, 19 Jan 2015 05:51:52 +0000</pubDate>
+        <torrent:contentLength>217426481</torrent:contentLength>
+        <torrent:infoHash>953677412CF7D94B71B0B44E78AA9186746C37DB</torrent:infoHash>
+        <torrent:magnetURI><![CDATA[magnet:?xt=urn:btih:953677412CF7D94B71B0B44E78AA9186746C37DB&dn=lost+girl+s05e07+hdtv+x264+2hd+eztv&tr=http%3A%2F%2Ftracker.trackerfix.com%2Fannounce&tr=udp%3A%2F%2Fopen.demonii.com%3A1337]]></torrent:magnetURI>
+        <torrent:seeds>1290</torrent:seeds>
+        <torrent:peers>1378</torrent:peers>
+        <torrent:verified>1</torrent:verified>
+        <torrent:fileName>lost.girl.s05e07.hdtv.x264.2hd.eztv.torrent</torrent:fileName>
+        <enclosure url="http://torcache.net/torrent/953677412CF7D94B71B0B44E78AA9186746C37DB.torrent?title=[kickass.so]lost.girl.s05e07.hdtv.x264.2hd.eztv" length="217426481" type="application/x-bittorrent" />
+    </item>
+</channel>
+</rss>
