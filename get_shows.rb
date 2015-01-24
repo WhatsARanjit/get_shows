@@ -38,15 +38,18 @@ end
 config_params['shows'].each do |show,hash|
   showname = show.to_s
   puts showname if debug
-  uri      = hash['torrent_uri'] ? hash['torrent_uri']         : config_params['torrent_uri']
-  options  = hash['torrent_options'] ? hash['torrent_options'] : config_params['torrent_options']
-  url      = hash['torrent_url'] ? hash['torrent_url']         : config_params['torrent_url']
-  url      = url.gsub(/%uri/, uri).gsub(/%showname/, URI::encode(showname)).gsub(/%options/, options)
+  uri          = hash['torrent_uri'] ? hash['torrent_uri']         : config_params['torrent_uri']
+  options      = hash['torrent_options'] ? hash['torrent_options'] : config_params['torrent_options']
+  url          = hash['torrent_url'] ? hash['torrent_url']         : config_params['torrent_url']
+  season       = hash['season'] ? hash['season']                   : config_params['season']
+  searchstring = season ? "#{showname} S#{season}"                 : showname
+  url          = url.gsub(/%uri/, uri).gsub(/%showname/, URI::encode(searchstring)).gsub(/%options/, options)
+  dest_dir     = hash['dest_dir'] ? hash['dest_dir']               : config_params['dest_dir']
+  delay        = hash['delay'] ? hash['delay']                     : config_params['delay']
+  max_age      = hash['max_age'] ? hash['max_age']                 : config_params['max_age']
+  cmd          = hash['torrent_cmd'] ? hash['torrent_cmd']         : config_params['torrent_cmd']
   puts url if debug
-  dest_dir = hash['dest_dir'] ? hash['dest_dir']               : config_params['dest_dir']
-  delay    = hash['delay'] ? hash['delay']                     : config_params['delay']
-  max_age  = hash['max_age'] ? hash['max_age']                 : config_params['max_age']
-  cmd      = hash['torrent_cmd'] ? hash['torrent_cmd']         : config_params['torrent_cmd']
+
   # Rescue a failure from a back URL or even a 404 if not torrent is available
   begin
     rss_check = open(url)
