@@ -36,6 +36,11 @@ the variables %uri (torrent_url), %showname (name of
 show in hash), and %options (torrent_options). For
 example, you can set it to '%uri/%showname/%options'.
 
+`headers`:<br />
+Headers can be passed as a `headers` hash. Each key/value
+will be passed into the HTTP call for the RSS feed.  For
+example, pass a User-Agent or a Referer.
+
 `season`:<br />
 The season is a 2 digit number that will be used in the
 search URL of specified.  The format is for the search

@@ -38,21 +38,23 @@ end
 config_params['shows'].each do |show,hash|
   showname = show.to_s
   puts showname if debug
-  uri          = hash['torrent_uri'] ? hash['torrent_uri']         : config_params['torrent_uri']
-  options      = hash['torrent_options'] ? hash['torrent_options'] : config_params['torrent_options']
-  url          = hash['torrent_url'] ? hash['torrent_url']         : config_params['torrent_url']
-  season       = hash['season'] ? hash['season']                   : config_params['season']
-  searchstring = season ? "#{showname} S#{season}"                 : showname
+  uri          = hash['torrent_uri']     ? hash['torrent_uri']      : config_params['torrent_uri']
+  options      = hash['torrent_options'] ? hash['torrent_options']  : config_params['torrent_options']
+  url          = hash['torrent_url']     ? hash['torrent_url']      : config_params['torrent_url']
+  headers      = hash['headers']         ? hash['headers']          : config_params['headers']
+  season       = hash['season']          ? hash['season']           : config_params['season']
+  searchstring = season                  ? "#{showname} S#{season}" : showname
+  dest_dir     = hash['dest_dir']        ? hash['dest_dir']         : config_params['dest_dir']
+  delay        = hash['delay']           ? hash['delay']            : config_params['delay']
+  max_age      = hash['max_age']         ? hash['max_age']          : config_params['max_age']
+  cmd          = hash['torrent_cmd']     ? hash['torrent_cmd']      : config_params['torrent_cmd']
+
   url          = url.gsub(/%uri/, uri).gsub(/%showname/, URI::encode(searchstring)).gsub(/%options/, options)
-  dest_dir     = hash['dest_dir'] ? hash['dest_dir']               : config_params['dest_dir']
-  delay        = hash['delay'] ? hash['delay']                     : config_params['delay']
-  max_age      = hash['max_age'] ? hash['max_age']                 : config_params['max_age']
-  cmd          = hash['torrent_cmd'] ? hash['torrent_cmd']         : config_params['torrent_cmd']
   puts url if debug
 
   # Rescue a failure from a back URL or even a 404 if not torrent is available
   begin
-    rss_check = open(url)
+    rss_check = open(url, headers)
   rescue Exception
     puts "Notice: No RSS Feed for show \"#{show}\"\n"
     good = false
@@ -61,7 +63,7 @@ config_params['shows'].each do |show,hash|
   end
 
   # Start parsing the RSS if a good URL
-  open(url) do |rss|
+  open(url, headers) do |rss|
     feed = RSS::Parser.parse(rss)
     feed.items.each do |item|
 
