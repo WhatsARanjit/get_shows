@@ -3,6 +3,8 @@
 torrent_url: 'http://kickass.to/usearch'
 torrent_options: '?rss=1&field=seeders&sorder=desc'
 torrent_url: '%uri/%showname/%options'
+headers:
+  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.91 Safari/537.36'
 torrent_cmd: '/usr/bin/transmission-remote -N /var/lib/transmission/.netrc -a'
 delay: 0
 max_age: 356
