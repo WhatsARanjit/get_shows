@@ -60,12 +60,10 @@ config_params['shows'].each do |show,hash|
 
         # Make a user-friendly, repeatable version of the title
         title = item.title.gsub(/\./, ' ').gsub(/(#{showname}\s?(?:S\d+)?(?:E\d+)?).*/i, '\1')
-        check = %x{ /bin/find #{dest_dir} -iname "*#{title}*" | /bin/grep -q "#{title}" }
-
+        
         # Don't do the following if the title is already in the done array
-        if $?.exitstatus.to_i > 0
+        if !Dir.glob("#{dest_dir}/*#{title}*").empty?
           puts title if debug
-          puts "Passes on disk check [#{$?.exitstatus.to_i}]: /bin/find #{dest_dir} -iname \"*#{title}*\" | /bin/grep -q \"#{title}\"" if debug
 
           # Calculate the age of the torrent relative to the delay
           pubdate = Date.parse "#{item.pubDate} (#{time.getlocal.zone})"
@@ -101,8 +99,10 @@ config_params['shows'].each do |show,hash|
         done << title if nodown
 
       end # END: RSS iteration
+      puts "Done with feed"
     end # END: open(url) vblock
-  rescue Exception
+  rescue Exception => e
+    raise e.message
     puts "Notice: No RSS Feed for show \"#{show}\"\n"
   end
 end # END: Shows hash
