@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
+require 'rubygems'
 require 'yaml'
 require 'rss'
 require 'open-uri'
 require 'optparse'
+require 'colorize'
 
 options = {:debug => false, :nodown => false}
 parser = OptionParser.new do|opts|
@@ -25,19 +27,20 @@ nodown = options[:nodown]
 # Get current time for delay comparison
 time = Time.now
 done = []
-puts "==>Start: #{time}"
+puts "=>Start: #{time}".green
 
 # Load configuration file
 begin
   config_params = YAML.load_file('/etc/get_shows.yaml')
 rescue 
-  $stderr.print "\033[31mError: Could not find file /etc/get_shows.yaml\033[0m\n"
+  $stderr.print "Error: Could not find file /etc/get_shows.yaml\n".red
+  puts "=>End: #{Time.now}".red
   exit 1
 end
 
 config_params['shows'].each do |show,hash|
   showname = show.to_s
-  puts showname if debug
+  puts "==>#{showname}".cyan if debug
   uri          = hash['torrent_uri']     ? hash['torrent_uri']      : config_params['torrent_uri']
   options      = hash['torrent_options'] ? hash['torrent_options']  : config_params['torrent_options']
   url          = hash['torrent_url']     ? hash['torrent_url']      : config_params['torrent_url']
@@ -50,7 +53,7 @@ config_params['shows'].each do |show,hash|
   cmd          = hash['torrent_cmd']     ? hash['torrent_cmd']      : config_params['torrent_cmd']
 
   url          = url.gsub(/%uri/, uri).gsub(/%showname/, URI::encode(searchstring)).gsub(/%options/, options)
-  puts url if debug
+  puts "==>#{url}".cyan if debug
 
   # Rescue a failure from a bad URL or a 404 if not torrent is available
   begin
@@ -60,10 +63,11 @@ config_params['shows'].each do |show,hash|
 
         # Make a user-friendly, repeatable version of the title
         title = item.title.gsub(/\./, ' ').gsub(/(#{showname}\s?(?:S\d+)?(?:E\d+)?).*/i, '\1')
+        dest_file = "#{dest_dir}/*#{title}*"
         
         # Don't do the following if the title is already in the done array
-        if !Dir.glob("#{dest_dir}/*#{title}*").empty?
-          puts title if debug
+        if Dir.glob(dest_file).empty?
+          puts "===>#{title}".cyan if debug
 
           # Calculate the age of the torrent relative to the delay
           pubdate = Date.parse "#{item.pubDate} (#{time.getlocal.zone})"
@@ -72,39 +76,42 @@ config_params['shows'].each do |show,hash|
 
           # If the torrent is old enough
           if (age > delay) and (age < max_age)
-            puts "Passes age check [#{age}]: #{now} - #{pubdate}" if debug
+            puts "===>Passes age check [#{age}]: #{now} - #{pubdate}".cyan if debug
 
             # Extract the magnet URL
             begin
               magnet = item.enclosure.to_s.match(/url="(.*)"/) [1]
             rescue
-              puts "Warning: Could not find URL in #{item.enclosure.to_s}"
+              puts "===>Warning: Could not find URL in #{item.enclosure.to_s}".yellow
             else
-              puts "\"#{item.title}\" available from #{magnet}" if nodown
+              puts "===>\"#{item.title}\" available from #{magnet}".green if nodown
               doit = %x{ #{cmd} #{magnet} } unless nodown
               if $?.exitstatus.to_i < 1
 
                 # If torrent add works, add to done array and output info
-                puts "Downloading \"#{item.title}\" from #{magnet}"
+                puts "===>Downloading \"#{item.title}\" from #{magnet}".green
                 done << title
 
               end unless nodown # END: checking if torrent command succeeded
 
             end # END: Rescue to see if we could get a URL
+          else
+            puts "===>Fails age check [#{age}]: #{now} - #{pubdate}".cyan if debug
           end # END: Age test
-          puts "Fails age check [#{age}]: #{now} - #{pubdate}" if debug
+        else
+          puts "===>Fails disk check: #{Dir.glob(dest_file)}".cyan if debug
         end unless done.include? title # END: if file does not already exist
 
         # Mock add to array if not actually downloaded
         done << title if nodown
 
       end # END: RSS iteration
-      puts "Done with feed"
+      puts "==>Done with feed".green
     end # END: open(url) vblock
   rescue Exception => e
     raise e.message
-    puts "Notice: No RSS Feed for show \"#{show}\"\n"
+    puts "==>Notice: No RSS Feed for show \"#{show}\"\n".green
   end
 end # END: Shows hash
 
-puts "==>End: #{Time.now}"
+puts "=>End: #{Time.now}".green
