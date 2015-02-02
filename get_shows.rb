@@ -29,7 +29,7 @@ nodown    = options[:nodown]
 $coloroff = options[:nocolor]
 
 def outputs (string, color, coloroff = $coloroff)
-  output = coloroff ? string: string.colorize(color.to_sym)
+  output = string ? string: string.colorize(color.to_sym)
 end
 
 # Get current time for delay comparison
