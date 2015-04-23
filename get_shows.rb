@@ -28,8 +28,8 @@ debug     = options[:debug]
 nodown    = options[:nodown]
 $coloroff = options[:nocolor]
 
-def outputs (string, color, coloroff = $coloroff)
-  output = string ? string: string.colorize(color.to_sym)
+def outputs (string, color = false, coloroff = $coloroff)
+  output = coloroff ? string : string.colorize(color.to_sym)
 end
 
 # Get current time for delay comparison
@@ -54,7 +54,7 @@ config_params['shows'].each do |show,hash|
   url          = hash['torrent_url']     ? hash['torrent_url']      : config_params['torrent_url']
   headers      = hash['headers']         ? hash['headers']          : config_params['headers']
   season       = hash['season']          ? hash['season']           : config_params['season']
-  searchstring = season                  ? "#{showname} S#{season}" : showname
+  searchstring = season                  ? "#{showname} season:#{season}" : showname
   dest_dir     = hash['dest_dir']        ? hash['dest_dir']         : config_params['dest_dir']
   delay        = hash['delay']           ? hash['delay']            : config_params['delay']
   max_age      = hash['max_age']         ? hash['max_age']          : config_params['max_age']
@@ -80,7 +80,7 @@ config_params['shows'].each do |show,hash|
           # Calculate the age of the torrent relative to the delay
           pubdate = Date.parse "#{item.pubDate} (#{time.getlocal.zone})"
           now     = Date.parse time.strftime('%a, %d %b %Y %X +0000 (%Z)')
-          age     = now - pubdate
+          age     = (now - pubdate).to_i
 
           # If the torrent is old enough
           if (age > delay) and (age < max_age)
@@ -99,7 +99,6 @@ config_params['shows'].each do |show,hash|
                 # If torrent add works, add to done array and output info
                 puts outputs("===>Downloading \"#{item.title}\" from #{magnet}", 'green')
                 done << title
-
               end unless nodown # END: checking if torrent command succeeded
 
             end # END: Rescue to see if we could get a URL
