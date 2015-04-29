@@ -48,7 +48,7 @@ end
 
 config_params['shows'].each do |show,hash|
   showname = show.to_s
-  puts outputs("==>#{showname}", 'cyan') if debug
+  puts outputs("==>#{showname}", 'green')
   uri          = hash['torrent_uri']     ? hash['torrent_uri']      : config_params['torrent_uri']
   options      = hash['torrent_options'] ? hash['torrent_options']  : config_params['torrent_options']
   url          = hash['torrent_url']     ? hash['torrent_url']      : config_params['torrent_url']
@@ -71,10 +71,13 @@ config_params['shows'].each do |show,hash|
 
         # Make a user-friendly, repeatable version of the title
         title = item.title.gsub(/\./, ' ').gsub(/(#{showname}\s?(?:S\d+)?(?:E\d+)?).*/i, '\1')
+        title_dot = title.gsub(/\s/, '.')
         dest_file = "#{dest_dir}/*#{title}*"
+        dest_file_dot = "#{dest_dir}/*#{title_dot}*"
+        puts outputs("===>#{dest_file}", 'cyan') if debug
         
         # Don't do the following if the title is already in the done array
-        if Dir.glob(dest_file).empty?
+        if Dir.glob(dest_file).empty? and Dir.glob(dest_file_dot).empty?
           puts outputs("===>#{title}", 'cyan') if debug
 
           # Calculate the age of the torrent relative to the delay
@@ -106,7 +109,7 @@ config_params['shows'].each do |show,hash|
             puts outputs("===>Fails age check [#{age}]: #{now} - #{pubdate}", 'cyan') if debug
           end # END: Age test
         else
-          puts outputs("===>Fails disk check: #{Dir.glob(dest_file)}", 'cyan') if debug
+          puts outputs("===>Fails disk check: #{(Dir.glob(dest_file) << Dir.glob(dest_file_dot)).flatten!}", 'cyan') if debug
         end unless done.include? title # END: if file does not already exist
 
         # Mock add to array if not actually downloaded
