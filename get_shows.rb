@@ -131,8 +131,10 @@ class Show
     uri                = URI.parse(rss_url)
     begin
       http             = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl     = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      if uri.scheme == 'https'
+        http.use_ssl     = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      end
       request          = Net::HTTP::Get.new(uri.request_uri, @headers)
       response         = http.request(request)
     rescue Timeout::Error,
