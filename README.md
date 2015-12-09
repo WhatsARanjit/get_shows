@@ -10,11 +10,13 @@ listings.  See `sample.xml` as an example.
 Usage: get_shows [options]
     -d, --debug                      Turns debug on
     -n, --no-download                Reports new links without beginning download
+    -c, --no-color                   Removes color output
     -h, --help                       Displays help
+    -v, --version                    Display current version
 ```
 
 # Configuration
-The configuration is managed in /etc/get_shows.yaml.
+The configuration is managed in `/etc/get_shows.yaml`.
 A sample is included in the repository at
 `sample_get_shows.yaml`.  Most of the configurations
 can be set globally and then overriden by the
@@ -32,9 +34,9 @@ user filters, or other indexes.
 
 `torrent_url`:<br />
 The torrent_url is a dynamic URL that is generated from
-the variables %uri (torrent_url), %showname (name of
-show in hash), and %options (torrent_options). For
-example, you can set it to '%uri/%showname/%options'.
+the variables `%uri` (torrent_url), `%showname` (name of
+show in hash), and `%options` (torrent_options). For
+example, you can set it to `'%uri/%showname/%options'`.
 
 `headers`:<br />
 Headers can be passed as a `headers` hash. Each key/value
@@ -44,7 +46,7 @@ example, pass a User-Agent or a Referer.
 `season`:<br />
 The season is a 2 digit number that will be used in the
 search URL of specified.  The format is for the search
-URL is '%uri/%showname S##/%options'.
+URL is `'%uri/%showname S##/%options'`.
 
 `torrent_cmd`:<br />
 Get_shows is torrent-agnostic.  That is, indicate the
@@ -71,7 +73,7 @@ torrents available to see if you've already downloaded
 the intended file.  Provide the directory here.
 
 `shows`:<br />
-This has is where you will specify at the least, the
+This is where you will specify at the least, the
 name of the shows you are concerned with.  For example,
 you can simple say 'Full House' or if you are concerned
 with a certain season, use 'Full House S03'.  If you
