@@ -5,7 +5,6 @@ require 'optparse'
 require 'colorize'
 require 'net/http'
 require 'rss'
-require 'pry'
 
 class ConfigParams
   attr_reader :show_hash
@@ -13,13 +12,13 @@ class ConfigParams
   def initialize(config)
     # Load configuration file
     begin
-      @config_yaml = YAML.load_file(config)
+      config_yaml = YAML.load_file(config)
     rescue 
       STDERR.print "Error: Could not find file /etc/get_shows.yaml\n".red
       exit 1
     end
 
-    @show_hash = parse_show(@config_yaml)
+    @show_hash = parse_show(config_yaml)
 
   end
 
@@ -41,14 +40,13 @@ class ConfigParams
 end
 
 class CmdOptions
-  attr_reader :options
   attr_reader :debug, :nodown, :coloroff
 
   def initialize
-    @options  = parse_options
-    @debug    = @options[:debug]
-    @nodown   = @options[:nodown]
-    @coloroff = @options[:nocolor]
+    options   = parse_options
+    @debug    = options[:debug]
+    @nodown   = options[:nodown]
+    @coloroff = options[:nocolor]
   end
 
   def outputs (string, color = false, coloroff = @coloroff)
@@ -135,7 +133,7 @@ class Show
       http             = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl     = true
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-      request          = Net::HTTP::Get.new(uri.request_uri)
+      request          = Net::HTTP::Get.new(uri.request_uri, @headers)
       response         = http.request(request)
     rescue Timeout::Error,
            Errno::EINVAL,
@@ -184,9 +182,9 @@ class Episode
 
   def initialize(showname, item, params)
     @showname    = showname
-    @item        = item
     # Filtering options
     @title       = item.title
+    @enclosure   = item.enclosure
     @time        = Time.now
     @pubdate     = Date.parse "#{item.pubDate} (#{@time.getlocal.zone})"
     @torrent_cmd = params['torrent_cmd']
@@ -200,7 +198,7 @@ class Episode
   end
 
   def dot_title(title)
-    title.gsub(/\s/, '.')
+    friendly_title(title).gsub(/\s/, '.')
   end
 
   def dest_file
@@ -212,7 +210,10 @@ class Episode
   end
 
   def file_exists?
-    Dir.glob(dest_file).empty? and Dir.glob(dest_file_dot).empty?
+    #puts Dir.glob(dest_file, File::FNM_CASEFOLD)
+    #puts Dir.glob(dest_file_dot, File::FNM_CASEFOLD)
+    Dir.glob(dest_file, File::FNM_CASEFOLD).empty? and
+    Dir.glob(dest_file_dot, File::FNM_CASEFOLD).empty?
   end
 
   def age_check?
@@ -221,7 +222,7 @@ class Episode
 
   def get_magnet_url
     begin
-      magnet = @item.enclosure.to_s.match(/url="(.*)"/) [1]
+      magnet = @enclosure.to_s.match(/url="(.*)"/) [1]
     rescue
       false
     else
@@ -262,7 +263,7 @@ shows.each do |title, props|
     ep    = Episode.new(sh.showname, item, props)
     title = ep.friendly_title(item.title)
     # Check if done already
-    unless done.include? title
+    unless done.include? title.downcase
       puts opts.outputs("===>#{title}", 'green')
     else
       puts opts.outputs("===>#{title} already done, skipping", 'cyan') if opts.debug
@@ -294,11 +295,11 @@ shows.each do |title, props|
         # If torrent add works, add to done array and output info
         puts opts.outputs("===>Downloading \"#{title}\"", 'light_blue')
         puts opts.outputs("===>Magnet URL: #{magnet}", 'cyan') if opts.debug
-        done << title
+        done << title.downcase
       end
     else
       # Mock add to array if not actually downloaded
-      done << title
+      done << title.downcase
     end
     puts opts.outputs("===>Done with #{title}", 'green')
   end
